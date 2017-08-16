@@ -6,8 +6,10 @@ import (
 	"image/color"
 	"image/draw"
 	"math/rand"
+	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 
 	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
@@ -28,9 +30,27 @@ type Options struct {
 
 var defaultLetterColor = color.RGBA{0xf0, 0xf0, 0xf0, 0xf0}
 
+// Extract two letters from given name
+func Extract(name string) string {
+	slices := strings.FieldsFunc(name, split)
+	if len(slices) >= 2 {
+		return first(slices[0]) + first(slices[1])
+	}
+	return first(name)
+}
+
+func first(s string) string {
+	firstLetter, _ := utf8.DecodeRuneInString(s)
+	return string(firstLetter)
+}
+
+func split(r rune) bool {
+	return r == '.' || r == ',' || r == ' '
+}
+
 // Draw generates a new letter-avatar image of the given size using the given letter
 // with the given options. Default parameters are used if a nil *Options is passed.
-func Draw(size int, letter rune, options *Options) (image.Image, error) {
+func Draw(size int, letters string, options *Options) (image.Image, error) {
 	font := defaultFont
 	if options != nil && options.Font != nil {
 		font = options.Font
@@ -55,14 +75,16 @@ func Draw(size int, letter rune, options *Options) (image.Image, error) {
 		}
 	}
 
-	return drawAvatar(bgColor, letterColor, font, size, letter)
+	return drawAvatar(bgColor, letterColor, font, size, letters)
 }
 
-func drawAvatar(bgColor, fgColor color.Color, font *truetype.Font, size int, letter rune) (image.Image, error) {
+func drawAvatar(bgColor, fgColor color.Color, font *truetype.Font, size int, letters string) (image.Image, error) {
 	dst := newRGBA(size, size, bgColor)
-
 	fontSize := float64(size) * 0.6
-	src, err := drawString(bgColor, fgColor, font, fontSize, string(letter))
+	if len(letters) > 1 {
+		fontSize = fontSize * 0.7
+	}
+	src, err := drawString(bgColor, fgColor, font, fontSize, letters)
 	if err != nil {
 		return nil, err
 	}

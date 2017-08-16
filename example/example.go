@@ -4,21 +4,21 @@ import (
 	"image/png"
 	"log"
 	"os"
-	"unicode/utf8"
 
-	"github.com/disintegration/letteravatar"
+	"github.com/goenning/letteravatar"
 )
 
 var names = []string{
-	"Alice",
-	"Bob",
-	"Carol",
+	"Jon Snow",
+	"Bob Marley",
+	"Carol Stark",
 	"Dave",
 	"Eve",
-	"Frank",
-	"Gloria",
+	"Frank Sinatra",
+	"Gloria Pires",
 	"Henry",
 	"Isabella",
+	"Mad Monkey",
 	"James",
 	"Жозефина",
 	"Ярослав",
@@ -26,9 +26,8 @@ var names = []string{
 
 func main() {
 	for _, name := range names {
-		firstLetter, _ := utf8.DecodeRuneInString(name)
 
-		img, err := letteravatar.Draw(75, firstLetter, nil)
+		img, err := letteravatar.Draw(75, letteravatar.Extract(name), nil)
 		if err != nil {
 			log.Fatal(err)
 		}
